@@ -16,7 +16,7 @@ services:
       - solid-network
 
   solid-backend:
-    image: dsda/solid-backend
+    image: fivecorner/solid-backend
     container_name: solid-backend
     restart: unless-stopped
     environment:
@@ -39,7 +39,7 @@ services:
       - solid-network
 
   solid-frontend:
-    image: dsda/solid-frontend
+    image: fivecorner/solid-frontend
     container_name: solid-frontend
     restart: unless-stopped
     ports:
@@ -48,7 +48,7 @@ services:
       - solid-network
 
   solid-web-server:
-    image: dsda/solid-web-server
+    image: fivecorner/solid-web-server
     container_name: solid-web-server
     restart: unless-stopped
     depends_on:
@@ -56,6 +56,8 @@ services:
       - solid-backend
     ports:
       - "8080:80"
+    volumes:
+      - solid-storage-volume:/var/www/html/storage
     networks:
       - solid-network
 
