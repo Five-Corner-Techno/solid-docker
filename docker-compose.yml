@@ -1,0 +1,68 @@
+version: "3.9"
+
+services:
+  solid-database:
+    image: mysql:8.2
+    container_name: solid-database
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: solid_db
+      MYSQL_USER: solid_user
+      MYSQL_PASSWORD: solid_pass
+      MYSQL_ROOT_PASSWORD: root_pass
+    volumes:
+      - solid-database-volume:/var/lib/mysql
+    networks:
+      - solid-network
+
+  solid-backend:
+    image: dsda/solid-backend
+    container_name: solid-backend
+    restart: unless-stopped
+    environment:
+      APP_ENV: production
+      APP_KEY: base64:SomeGeneratedKeyHere
+      APP_DEBUG: false
+      APP_URL: http://localhost
+
+      DB_CONNECTION: mysql
+      DB_HOST: solid-database
+      DB_PORT: 3306
+      DB_DATABASE: solid_db
+      DB_USERNAME: solid_user
+      DB_PASSWORD: solid_pass
+    volumes:
+      - solid-storage-volume:/var/www/html/storage
+    depends_on:
+      - solid-database
+    networks:
+      - solid-network
+
+  solid-frontend:
+    image: dsda/solid-frontend
+    container_name: solid-frontend
+    restart: unless-stopped
+    ports:
+      - "80:3000"
+    networks:
+      - solid-network
+
+  solid-web-server:
+    image: dsda/solid-web-server
+    container_name: solid-web-server
+    restart: unless-stopped
+    depends_on:
+      - solid-frontend
+      - solid-backend
+    ports:
+      - "8080:80"
+    networks:
+      - solid-network
+
+volumes:
+  solid-storage-volume:
+  solid-database-volume:
+
+networks:
+  solid-network:
+    driver: bridge
